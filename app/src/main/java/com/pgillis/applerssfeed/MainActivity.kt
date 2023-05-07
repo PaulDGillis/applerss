@@ -27,11 +27,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.pgillis.applerssfeed.models.Song
 import com.pgillis.applerssfeed.ui.theme.MyApplicationTheme
 
@@ -51,19 +56,29 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val songs by viewModel.songs.collectAsState(initial = emptyList())
-                    LazyColumn(
-                        contentPadding = PaddingValues(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        items(songs) { song ->
-                            SongView(song, onClick = {
-                                startActivity(viewModel.openSongIntent(it))
-                            })
-                        }
+                    val navController = rememberNavController()
+                    NavHost(navController = navController, startDestination = "songs") {
+                        composable("songs") { SongsScreen(viewModel) }
                     }
+
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun SongsScreen(viewModel: MainActivityViewModel) {
+    val songs by viewModel.songs.collectAsState(initial = emptyList())
+    LazyColumn(
+        contentPadding = PaddingValues(10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        items(songs) { song ->
+            SongView(song, onClick = {
+//                val context = LocalContext.current
+//                viewModel.openSongIntent(context, it)
+            })
         }
     }
 }
