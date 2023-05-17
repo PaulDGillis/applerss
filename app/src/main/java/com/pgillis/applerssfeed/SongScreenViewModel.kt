@@ -1,17 +1,19 @@
 package com.pgillis.applerssfeed
 
+import android.app.Application
 import androidx.compose.ui.platform.UriHandler
-import androidx.lifecycle.ViewModel
 import com.pgillis.applerssfeed.models.Song
-import com.pgillis.applerssfeed.service.AppleService
+import com.pgillis.applerssfeed.service.BaseViewModel
 import kotlinx.coroutines.flow.Flow
 
-class SongScreenViewModel(
-    private val appleService: AppleService = AppleService.init()
-): ViewModel() {
+class SongScreenViewModel(application: Application): BaseViewModel(application) {
+
+    init {
+        rssRemoteRepo.songs()
+    }
 
     val songs: Flow<List<Song>>
-        get() = appleService.songs()
+        get() = rssDatabase.songDao().getSongs()
 
     fun openSongIntent(uriHandler: UriHandler, song: Song) {
         uriHandler.openUri(song.url)

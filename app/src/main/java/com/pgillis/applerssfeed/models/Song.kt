@@ -1,5 +1,7 @@
 package com.pgillis.applerssfeed.models
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -7,9 +9,10 @@ import kotlinx.serialization.Serializable
 @SerialName("feed")
 data class Feed(val results: List<Song>)
 
+@Entity
 @Serializable
 data class Song(
-    val id: String = "",
+    @PrimaryKey val id: String = "",
     val name: String = "",
     val artistName: String = "",
     @SerialName("artworkUrl100")
