@@ -1,5 +1,6 @@
 package com.pgillis.applerssfeed.service
 
+import android.util.Log
 import com.pgillis.applerssfeed.models.Feed
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
@@ -13,6 +14,8 @@ import okio.IOException
 
 class RSSRemoteRepo(private val client: OkHttpClient, private val dao: SongDAO) {
     companion object {
+        private const val TAG = "RSSRemoteRepo"
+
         val json = Json { ignoreUnknownKeys = true }
         val stringToFeedMapSerializer: KSerializer<Map<String, Feed>> = serializer()
     }
@@ -22,6 +25,16 @@ class RSSRemoteRepo(private val client: OkHttpClient, private val dao: SongDAO) 
             .url("https://rss.applemarketingtools.com/api/v2/us/music/most-played/10/songs.json")
             .build()
 
+        enqueue(request) { body ->
+            val songs = json.decodeFromString(stringToFeedMapSerializer, body)
+                    .getValue("feed")
+                    .results
+
+            dao.insertSongs(songs)
+        }
+    }
+
+    private fun enqueue(request: Request, onResponseBlock: (String) -> Unit) {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
@@ -29,12 +42,11 @@ class RSSRemoteRepo(private val client: OkHttpClient, private val dao: SongDAO) 
 
             override fun onResponse(call: Call, response: Response) {
                 response.use {
-                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
-
-                    val songs =
-                        json.decodeFromString(stringToFeedMapSerializer, response.body!!.string())
-                            .getValue("feed").results
-                    dao.insertSongs(songs)
+                    if (!response.isSuccessful) {
+                        Log.e(TAG, "Unexpected code $response")
+                    } else {
+                        response.body?.string()?.let(onResponseBlock)
+                    }
                 }
             }
         })
