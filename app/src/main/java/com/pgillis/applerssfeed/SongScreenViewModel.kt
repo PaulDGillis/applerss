@@ -1,12 +1,16 @@
 package com.pgillis.applerssfeed
 
-import android.app.Application
 import androidx.compose.ui.platform.UriHandler
+import androidx.lifecycle.ViewModel
 import com.pgillis.applerssfeed.models.Song
-import com.pgillis.applerssfeed.service.BaseViewModel
+import com.pgillis.applerssfeed.service.RSSDatabase
+import com.pgillis.applerssfeed.service.RSSRemoteRepo
 import kotlinx.coroutines.flow.Flow
 
-class SongScreenViewModel(application: Application): BaseViewModel(application) {
+class SongScreenViewModel(
+    rssRemoteRepo: RSSRemoteRepo,
+    private val rssDatabase: RSSDatabase
+): ViewModel() {
 
     init {
         rssRemoteRepo.songs()

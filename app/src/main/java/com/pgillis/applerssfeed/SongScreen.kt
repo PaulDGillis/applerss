@@ -25,14 +25,16 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.pgillis.applerssfeed.service.viewModel
 import com.pgillis.applerssfeed.ui.theme.MyApplicationTheme
 import com.skydoves.landscapist.glide.GlideImage
 
 @Composable
 fun SongScreen(
     modifier: Modifier = Modifier,
-    viewModel: SongScreenViewModel = viewModel()
+    viewModel: SongScreenViewModel = viewModel {
+        SongScreenViewModel(it.rssRemoteRepo, it.rssDatabase)
+    }
 ) {
     val uriHandler = LocalUriHandler.current
     val songs by viewModel.songs.collectAsState(initial = emptyList())
